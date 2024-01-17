@@ -1,4 +1,4 @@
-.PHONY: build pull pack-benchmark pack-submission test-submission
+.PHONY: build pull pack-benchmark pack-submission repack-submission repack-example test-submission
 
 # ================================================================================================
 # Settings
@@ -49,7 +49,7 @@ test-container: build _submission_write_perms
 		--mount type=bind,source="$(shell pwd)"/runtime/tests,target=/tests,readonly \
 		--entrypoint /bin/bash \
 		${LOCAL_IMAGE} \
-		-c "conda run --no-capture-output -n condaenv python -m pytest tests"
+		-c "bash -c 'python -m pytest tests'"
 
 ## Start your locally built container and open a bash shell within the running container; same as submission setup except has network access
 interact-container: build _submission_write_perms
@@ -83,6 +83,9 @@ endif
 	mkdir -p submission/
 	cd submission_src; zip -r ../submission/submission.zip ./*
 
+repack-submission: clean pack-submission
+
+repack-example: clean pack-example
 
 ## Runs container using code from `submission/submission.zip` and data from `data/`
 test-submission: _submission_write_perms
@@ -106,3 +109,4 @@ endif
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
+	rm -rf ./submission/*
