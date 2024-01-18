@@ -4,7 +4,7 @@
 temp_dir=$(mktemp -d)
 
 # find all the chain directories in advance so we can parallelize in the next step
-find ../data/ -maxdepth 1 -mindepth 1 -type d > directories.txt
+find ../data/images -maxdepth 1 -mindepth 1 -type d > directories.txt
 
 # use GNU parallel to run main.py on all of the chain dirs we just found
 # - the first argument {} will be a path to a chain dir, from each line of directories.txt
