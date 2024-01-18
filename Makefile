@@ -47,9 +47,8 @@ test-container: build _submission_write_perms
 	docker run \
 		${TTY_ARGS} \
 		--mount type=bind,source="$(shell pwd)"/runtime/tests,target=/tests,readonly \
-		--entrypoint /bin/bash \
 		${LOCAL_IMAGE} \
-		-c "bash -c 'python -m pytest tests'"
+		pytest tests/test_packages.py
 
 ## Start your locally built container and open a bash shell within the running container; same as submission setup except has network access
 interact-container: build _submission_write_perms
