@@ -4,7 +4,7 @@ set -euxo pipefail
 
 main () {
     expected_filename=main.sh
-
+    data_directory=/code_execution/data
     cd /code_execution
 
     submission_files=$(zip -sf ./submission/submission.zip)
@@ -20,6 +20,24 @@ main () {
     find workdir
 
     pushd workdir
+
+    for (( i=1; i<=30; i++ ))
+    do
+        # Check if the directory is not empty
+        if [ "$(ls -A $data_directory)" ]; then
+            echo "Data directory contains files after waiting $i seconds."
+            break
+        else
+            # Sleep for 1 second if the directory is still empty
+            sleep 1
+        fi
+    done
+    # if directory is still empty after all attempts, log an error and exit
+    if [ ! "$(ls -A $data_directory)" ]; then
+        echo "Error: Data directory not properly mounted after waiting 30 seconds."
+        exit 1
+    fi
+
     sh main.sh
     popd
 
