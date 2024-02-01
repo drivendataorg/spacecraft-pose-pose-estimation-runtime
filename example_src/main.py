@@ -6,10 +6,8 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-SUBMISSION_FORMAT_PATH = "/code_execution/data/submission_format.csv"
 INDEX_COLS = ["chain_id", "i"]
-SUBMISSION_FORMAT_DF = pd.read_csv(SUBMISSION_FORMAT_PATH, index_col=INDEX_COLS)
-PREDICTION_COLS = SUBMISSION_FORMAT_DF.columns
+PREDICTION_COLS = ["x", "y", "z", "qw", "qx", "qy", "qz"]
 REFERENCE_VALUES = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
 
 
@@ -31,7 +29,7 @@ def predict_chain(chain_dir: Path):
         raise ValueError(f"Could not find reference image for chain {chain_id}")
 
     # create an empty dataframe to populate with values
-    chain_df = pd.DataFrame(index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS)
+    chain_df = pd.DataFrame(index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS, dtype=float)
 
     # make a prediction for each image
     for i, image_path in path_per_idx.items():
@@ -44,7 +42,8 @@ def predict_chain(chain_dir: Path):
         chain_df.loc[i] = predicted_values
 
     # double check we made predictions for each image
-    assert chain_df.notnull().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
+    assert (chain_df.notnull().all(axis="rows").all()), f"Found NaN values for chain {chain_id}"
+    assert (np.isfinite(chain_df.values).all().all()), f"Found NaN or infinite values for chain {chain_id}"
 
     return chain_df
 
@@ -66,12 +65,17 @@ def main(data_dir, output_path):
     logger.info(f"using data dir: {data_dir}")
     assert data_dir.exists(), f"Data directory does not exist: {data_dir}"
 
+    # read in the submission format
+    submission_format_path = data_dir / "submission_format.csv"
+    submission_format_df = pd.read_csv(submission_format_path, index_col=INDEX_COLS)
+
     # copy over the submission format so we can overwrite placeholders with predictions
-    submission_df = SUBMISSION_FORMAT_DF.copy()
+    submission_df = submission_format_df.copy()
 
     image_dir = data_dir / "images"
-    chain_ids = SUBMISSION_FORMAT_DF.index.get_level_values(0).unique()
+    chain_ids = submission_format_df.index.get_level_values(0).unique()
     for chain_id in chain_ids:
+        logger.info(f"Processing chain: {chain_id}")
         chain_dir = image_dir / chain_id
         assert chain_dir.exists(), f"Chain directory does not exist: {chain_dir}"
         chain_df = predict_chain(chain_dir)
