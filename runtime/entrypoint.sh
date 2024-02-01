@@ -5,7 +5,7 @@ set -euxo pipefail
 main () {
     cd /code_execution
 
-    if curl --connect-timeout 10 --max-time 12 www.example.com ; then
+    if curl --silent --connect-timeout 10 --max-time 12 www.example.com ; then
         echo "Unexpected network connection found"
         return 1
     fi
