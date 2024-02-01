@@ -7,6 +7,8 @@ from pandas.testing import assert_index_equal
 
 SUBMISSION_PATH = Path("/code_execution/submission/submission.csv")
 SUBMISSION_FORMAT_PATH = Path("/code_execution/data/submission_format.csv")
+INDEX_COLS = ["chain_id", "i"]
+PREDICTION_COLS = ["x", "y", "z", "qw", "qx", "qy", "qz"]
 REFERENCE_VALUES = np.array([0, 0, 0, 1, 0, 0, 0], dtype=float)
 REFERENCE_TOLERANCE = 1e-6
 
@@ -27,6 +29,8 @@ def test_submission_matches_submission_format():
     for col in submission.columns:
         assert submission[col].dtype == fmt[col].dtype, f"dtype for columns not equal"
         assert submission[col].notnull().all(), "Missing values found in submission"
+
+    for col in PREDICTION_COLS:
         assert np.isfinite(submission[col]).all(), "Non-finite values found in submission"
 
 
