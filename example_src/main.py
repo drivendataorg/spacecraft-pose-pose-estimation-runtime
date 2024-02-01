@@ -19,7 +19,9 @@ def predict_chain(chain_dir: Path):
     idxs = list(sorted(path_per_idx.keys()))
 
     assert idxs[0] == 0, f"First index for chain {chain_id} is not 0"
-    assert (np.diff(idxs) == 1).all(), f"Skipped image indexes found in chain {chain_id}"
+    assert (
+        np.diff(idxs) == 1
+    ).all(), f"Skipped image indexes found in chain {chain_id}"
 
     # pick out the reference image
     try:
@@ -29,7 +31,9 @@ def predict_chain(chain_dir: Path):
         raise ValueError(f"Could not find reference image for chain {chain_id}")
 
     # create an empty dataframe to populate with values
-    chain_df = pd.DataFrame(index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS, dtype=float)
+    chain_df = pd.DataFrame(
+        index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS, dtype=float
+    )
 
     # make a prediction for each image
     for i, image_path in path_per_idx.items():
@@ -42,8 +46,12 @@ def predict_chain(chain_dir: Path):
         chain_df.loc[i] = predicted_values
 
     # double check we made predictions for each image
-    assert chain_df.notnull().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
-    assert np.isfinite(chain_df.values).all().all(), f"Found NaN or infinite values for chain {chain_id}"
+    assert (
+        chain_df.notnull().all(axis="rows").all()
+    ), f"Found NaN values for chain {chain_id}"
+    assert (
+        np.isfinite(chain_df.values).all().all()
+    ), f"Found NaN or infinite values for chain {chain_id}"
 
     return chain_df
 
@@ -60,7 +68,9 @@ def predict_chain(chain_dir: Path):
 def main(data_dir, output_path):
     data_dir = Path(data_dir).resolve()
     output_path = Path(output_path).resolve()
-    assert output_path.parent.exists(), f"Expected output directory {output_path.parent} does not exist"
+    assert (
+        output_path.parent.exists()
+    ), f"Expected output directory {output_path.parent} does not exist"
 
     logger.info(f"using data dir: {data_dir}")
     assert data_dir.exists(), f"Data directory does not exist: {data_dir}"
