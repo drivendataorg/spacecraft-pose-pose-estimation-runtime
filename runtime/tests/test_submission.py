@@ -27,11 +27,11 @@ def test_submission_matches_submission_format():
     assert_index_equal(submission.index, fmt.index), "Index not identical"
 
     for col in submission.columns:
-        assert submission[col].dtype == fmt[col].dtype, f"dtype for columns not equal"
-        assert submission[col].notnull().all(), "Missing values found in submission"
+        assert submission[col].dtype == fmt[col].dtype, f"dtype for column {col} is not {fmt[col].dtype}"
+        assert submission[col].notnull().all(), f"Missing values found in submission column {col}"
 
     for col in PREDICTION_COLS:
-        assert np.isfinite(submission[col]).all(), "Non-finite values found in submission"
+        assert np.isfinite(submission[col]).all(), f"Non-finite values found in submission column {col}"
 
 
 def test_submission_reference_rows_within_atol():
