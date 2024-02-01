@@ -3,7 +3,7 @@
 
 # Pose Bowl: Code execution runtime
 
-Welcome to the runtime repository for the **Detection Track** of the [Pose Bowl: Spacecraft Detection and Pose Estimation Challenge](https://www.drivendata.org/competitions/261/spacecraft-pose-estimation/)!
+Welcome to the runtime repository for the **Pose Estimation Track** of the [Pose Bowl: Spacecraft Detection and Pose Estimation Challenge](https://www.drivendata.org/competitions/261/spacecraft-pose-estimation/)!
 
 This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
 
