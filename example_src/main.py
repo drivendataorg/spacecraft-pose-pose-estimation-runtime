@@ -29,7 +29,7 @@ def predict_chain(chain_dir: Path):
         raise ValueError(f"Could not find reference image for chain {chain_id}")
 
     # create an empty dataframe to populate with values
-    chain_df = pd.DataFrame(index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS)
+    chain_df = pd.DataFrame(index=pd.Index(idxs, name="i"), columns=PREDICTION_COLS, dtype=float)
 
     # make a prediction for each image
     for i, image_path in path_per_idx.items():
@@ -38,11 +38,12 @@ def predict_chain(chain_dir: Path):
         else:
             _other_image = cv2.imread(str(image_path))
             # TODO: actually make predictions! we don't actually do anything useful here!
-            predicted_values = np.random.rand(size=len(PREDICTION_COLS))
+            predicted_values = np.random.rand(len(PREDICTION_COLS))
         chain_df.loc[i] = predicted_values
 
     # double check we made predictions for each image
-    assert chain_df.isfinite().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
+    assert chain_df.notnull().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
+    assert np.isfinite(chain_df.values).all().all(), f"Found NaN or infinite values for chain {chain_id}"
 
     return chain_df
 
@@ -66,14 +67,15 @@ def main(data_dir, output_path):
 
     # read in the submission format
     submission_format_path = data_dir / "submission_format.csv"
-    submission_format_df = pd.read_csv(submission_format_path)
+    submission_format_df = pd.read_csv(submission_format_path, index_col=INDEX_COLS)
 
     # copy over the submission format so we can overwrite placeholders with predictions
     submission_df = submission_format_df.copy()
 
     image_dir = data_dir / "images"
-    chain_ids = submission_format_df.chain_id.unique()
+    chain_ids = submission_format_df.index.get_level_values(0).unique()
     for chain_id in chain_ids:
+        logger.info(f"Processing chain: {chain_id}")
         chain_dir = image_dir / chain_id
         assert chain_dir.exists(), f"Chain directory does not exist: {chain_dir}"
         chain_df = predict_chain(chain_dir)
