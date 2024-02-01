@@ -6,8 +6,10 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+SUBMISSION_FORMAT_PATH = "/code_execution/data/submission_format.csv"
 INDEX_COLS = ["chain_id", "i"]
-PREDICTION_COLS = ["x", "y", "z", "qw", "qx", "qy", "qz"]
+SUBMISSION_FORMAT_DF = pd.read_csv(SUBMISSION_FORMAT_PATH, index_col=INDEX_COLS)
+PREDICTION_COLS = SUBMISSION_FORMAT_DF.columns
 REFERENCE_VALUES = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
 
 
@@ -38,11 +40,11 @@ def predict_chain(chain_dir: Path):
         else:
             _other_image = cv2.imread(str(image_path))
             # TODO: actually make predictions! we don't actually do anything useful here!
-            predicted_values = np.random.rand(size=len(PREDICTION_COLS))
+            predicted_values = np.random.rand(len(PREDICTION_COLS))
         chain_df.loc[i] = predicted_values
 
     # double check we made predictions for each image
-    assert chain_df.isfinite().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
+    assert chain_df.notnull().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
 
     return chain_df
 
@@ -64,15 +66,11 @@ def main(data_dir, output_path):
     logger.info(f"using data dir: {data_dir}")
     assert data_dir.exists(), f"Data directory does not exist: {data_dir}"
 
-    # read in the submission format
-    submission_format_path = data_dir / "submission_format.csv"
-    submission_format_df = pd.read_csv(submission_format_path)
-
     # copy over the submission format so we can overwrite placeholders with predictions
-    submission_df = submission_format_df.copy()
+    submission_df = SUBMISSION_FORMAT_DF.copy()
 
     image_dir = data_dir / "images"
-    chain_ids = submission_format_df.chain_id.unique()
+    chain_ids = SUBMISSION_FORMAT_DF.index.get_level_values(0).unique()
     for chain_id in chain_ids:
         chain_dir = image_dir / chain_id
         assert chain_dir.exists(), f"Chain directory does not exist: {chain_dir}"
