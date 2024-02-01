@@ -42,8 +42,8 @@ def predict_chain(chain_dir: Path):
         chain_df.loc[i] = predicted_values
 
     # double check we made predictions for each image
-    assert (chain_df.notnull().all(axis="rows").all()), f"Found NaN values for chain {chain_id}"
-    assert (np.isfinite(chain_df.values).all().all()), f"Found NaN or infinite values for chain {chain_id}"
+    assert chain_df.notnull().all(axis="rows").all(), f"Found NaN values for chain {chain_id}"
+    assert np.isfinite(chain_df.values).all().all(), f"Found NaN or infinite values for chain {chain_id}"
 
     return chain_df
 
