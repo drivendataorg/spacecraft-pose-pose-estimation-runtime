@@ -7,7 +7,7 @@ TAG = latest
 LOCAL_TAG = local
 
 TASK = pose-estimation
-REPO = spacecraft-pose-${TASK}-runtime
+REPO = spacecraft-pose-${TASK}
 REGISTRY_IMAGE = spacecraftpose.azurecr.io/${REPO}:${TAG}
 LOCAL_IMAGE = ${REPO}:${LOCAL_TAG}
 CONTAINER_NAME = spacecraft-pose-${TASK}
