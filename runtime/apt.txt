@@ -4,4 +4,4 @@ tzdata
 wget
 zip
 parallel
-libgl1-mesa-glx
+python3-opencv
